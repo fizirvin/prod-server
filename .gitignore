@@ -107,4 +107,5 @@ dist
 now.json
 .vercel
 vercel.json
+Procfile
 
