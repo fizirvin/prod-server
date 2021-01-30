@@ -1,0 +1,39 @@
+const keyValueNgMachineSub = require('./keyValueNgMachineSub')
+
+module.exports = function filterNgsMachinesSub(machines, fields, ngs, defect) {
+  const data = machines.map((machine) => {
+    const sub = fields.map((item) => {
+      return {
+        date: item.value,
+        field: item.field,
+        value: keyValueNgMachineSub(
+          ngs,
+          defect,
+          item.min,
+          item.max,
+          machine._id
+        )
+      }
+    })
+    const subtotal = {
+      field: 'total',
+      value:
+        sub.reduce((a, b) => {
+          return +(a + +b.value).toFixed(2)
+        }, 0) || 0
+    }
+    return { row: machine.number, data: [...sub, subtotal] }
+  })
+  return data
+    .filter(
+      (item) =>
+        item.data.reduce((a, b) => {
+          return +(a + +b.value).toFixed(2)
+        }, 0) !== 0
+    )
+    .sort((x, y) => {
+      const valueA = y.data.find((d) => d.field === 'total').value
+      const valueB = x.data.find((d) => d.field === 'total').value
+      return valueA - valueB
+    })
+}
